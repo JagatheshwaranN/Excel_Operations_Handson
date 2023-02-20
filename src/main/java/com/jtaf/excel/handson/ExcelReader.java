@@ -82,7 +82,7 @@ public class ExcelReader {
 			if (index == -1)
 				return "";
 			sheet = workbook.getSheetAt(index);
-			row = sheet.getRow(rowNum-1);
+			row = sheet.getRow(rowNum - 1);
 			if (row == null)
 				return "";
 			cell = row.getCell(colNum);
@@ -110,4 +110,53 @@ public class ExcelReader {
 			return "row " + rowNum + " or column " + colNum + " is doesn't exists in the xlsx workbook";
 		}
 	}
+
+	public String fetchCellData(String sheetName, String colName, int rowNum) {
+
+		try {
+
+			if (rowNum <= 0)
+				return "";
+			int index = workbook.getSheetIndex(sheetName);
+			int col_Num = -1;
+			if (index == -1)
+				return "";
+			sheet = workbook.getSheetAt(index);
+			row = sheet.getRow(0);
+			for (int i = 0; i < row.getLastCellNum(); i++) {
+				if (row.getCell(i).getStringCellValue().trim().equalsIgnoreCase(colName.trim()))
+					col_Num = i;
+			}
+			if (col_Num == -1)
+				return "";
+			sheet = workbook.getSheetAt(index);
+			row = sheet.getRow(rowNum - 1);
+			if (row == null)
+				return "";
+			cell = row.getCell(col_Num);
+			if (cell == null)
+				return "";
+			if (cell.getCellType() == CellType.STRING)
+				return cell.getStringCellValue();
+			else if (cell.getCellType() == CellType.NUMERIC || cell.getCellType() == CellType.FORMULA) {
+				String cellData = String.valueOf(cell.getNumericCellValue());
+				if (DateUtil.isCellDateFormatted(cell)) {
+					double d = cell.getNumericCellValue();
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(DateUtil.getJavaDate(d));
+					cellData = calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + 1 + "/"
+							+ String.valueOf(calendar.get(Calendar.YEAR)).substring(2);
+				}
+				return cellData;
+			} else if (cell.getCellType() == CellType.BLANK)
+				return "";
+			else
+				return String.valueOf(cell.getBooleanCellValue());
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return "row " + rowNum + " or column " + colName + " is doesn't exists in the xlsx workbook";
+		}
+	}
+
 }
