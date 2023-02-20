@@ -10,6 +10,7 @@ public class GetExcelSheetSuiteRunnable {
 	}
 
 	public static boolean checkSuiteRunnable() {
+
 		ExcelReader reader = new ExcelReader(System.getProperty("user.dir") + "/src/test/resources/TestWorkBook.xlsx");
 		String sheetName = "TestSuite";
 		String suiteCol = "Suite";

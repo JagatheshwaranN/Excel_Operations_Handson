@@ -114,7 +114,6 @@ public class ExcelReader {
 	public String fetchCellData(String sheetName, String colName, int rowNum) {
 
 		try {
-
 			if (rowNum <= 0)
 				return "";
 			int index = workbook.getSheetIndex(sheetName);
@@ -158,5 +157,4 @@ public class ExcelReader {
 			return "row " + rowNum + " or column " + colName + " is doesn't exists in the xlsx workbook";
 		}
 	}
-
 }
