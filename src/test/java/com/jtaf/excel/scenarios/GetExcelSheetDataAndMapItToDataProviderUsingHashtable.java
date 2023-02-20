@@ -1,22 +1,25 @@
 package com.jtaf.excel.scenarios;
 
+import java.util.Hashtable;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.jtaf.excel.handson.ExcelReader;
 
-public class GetExcelSheetDataAndMapItToDataProvider {
+public class GetExcelSheetDataAndMapItToDataProviderUsingHashtable {
 
 	@Test(dataProvider = "getData")
-	public void dataFromProvider1(String customer, String currency, String message) {
+	public void dataFromProvider1(Hashtable<String, String> data) {
 
-		System.out.println(customer + "---" + currency + "---" + message);
+		System.out.println(data.get("Customer") + "---" + data.get("Currency") + "---" + data.get("SuccessMessage"));
 	}
 
 	@DataProvider(name = "getData")
 	public Object[][] getDataFromExcel() {
-		
+
 		Object[][] data = null;
+		Hashtable<String, String> table = null;
 		ExcelReader reader = new ExcelReader(System.getProperty("user.dir") + "/src/test/resources/TestWorkBook.xlsx");
 		String sheetName = "TestDataSet";
 		int rows = reader.getSheetRowCount(sheetName);
@@ -46,14 +49,21 @@ public class GetExcelSheetDataAndMapItToDataProvider {
 		}
 		System.out.println("Total columns of test data are " + testDataCols);
 
-		data = new Object[testDataRows][testDataCols];
+		data = new Object[testDataRows][1];
 
+		int i = 0;
 		for (int rowNum = testDataStartRowNum; rowNum < (testDataStartRowNum + testDataRows); rowNum++) {
+
+			table = new Hashtable<String, String>();
 
 			for (int colNum = 0; colNum < testDataCols; colNum++) {
 
-				data[rowNum - testDataStartRowNum][colNum] = reader.fetchCellData(sheetName, colNum, rowNum);
+				String testData = reader.fetchCellData(sheetName, colNum, rowNum);
+				String colName = reader.fetchCellData(sheetName, colNum, testDataStartColumNum);
+				table.put(colName, testData);
 			}
+			data[i][0] = table;
+			i++;
 		}
 		return data;
 	}
