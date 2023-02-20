@@ -3,7 +3,10 @@ package com.jtaf.excel.handson;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -70,4 +73,41 @@ public class ExcelReader {
 		return row.getLastCellNum();
 	}
 
+	public String fetchCellData(String sheetName, int colNum, int rowNum) {
+
+		try {
+			if (rowNum <= 0)
+				return "";
+			int index = workbook.getSheetIndex(sheetName);
+			if (index == -1)
+				return "";
+			sheet = workbook.getSheetAt(index);
+			row = sheet.getRow(rowNum-1);
+			if (row == null)
+				return "";
+			cell = row.getCell(colNum);
+			if (cell == null)
+				return "";
+			if (cell.getCellType() == CellType.STRING)
+				return cell.getStringCellValue();
+			else if (cell.getCellType() == CellType.NUMERIC || cell.getCellType() == CellType.FORMULA) {
+				String cellData = String.valueOf(cell.getNumericCellValue());
+				if (DateUtil.isCellDateFormatted(cell)) {
+					double d = cell.getNumericCellValue();
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(DateUtil.getJavaDate(d));
+					cellData = calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + 1 + "/"
+							+ String.valueOf(calendar.get(Calendar.YEAR)).substring(2);
+				}
+				return cellData;
+			} else if (cell.getCellType() == CellType.BLANK)
+				return "";
+			else
+				return String.valueOf(cell.getBooleanCellValue());
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return "row " + rowNum + " or column " + colNum + " is doesn't exists in the xlsx workbook";
+		}
+	}
 }
